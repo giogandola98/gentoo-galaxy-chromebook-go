@@ -1,0 +1,17 @@
+font=Noto Sans 11
+background-color=#1e1e2eee
+text-color=#cdd6f4
+border-color=#89b4fa
+border-size=1
+border-radius=8
+default-timeout=6000
+anchor=top-right
+margin=36,10,10,10
+progress-color=over #89b4fa
+
+[app-name=osd]
+anchor=bottom-center
+margin=0,0,90,0
+width=280
+text-alignment=center
+font=Noto Sans Bold 12

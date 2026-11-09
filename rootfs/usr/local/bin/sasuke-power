@@ -1,0 +1,18 @@
+#!/bin/sh
+# Session menu (fuzzel dmenu): power off, reboot, suspend, lock, logout, battery charge mode.
+mode=$(cat /etc/sasuke/charge-mode 2>/dev/null || echo limit)
+if [ "$mode" = full ]; then
+  batt="Batteria: torna al limite 80% (consigliato)"
+else
+  batt="Batteria: carica completa al 100% (viaggio)"
+fi
+c=$(printf 'Spegni\nRiavvia\nSospendi\nBlocca schermo\nEsci (logout)\n%s\n' "$batt" | fuzzel --dmenu --prompt 'Sessione: ' --lines 6)
+case "$c" in
+  Spegni) systemctl poweroff || notify-send -u critical Sessione "Spegnimento non riuscito" ;;
+  Riavvia) systemctl reboot || notify-send -u critical Sessione "Riavvio non riuscito" ;;
+  Sospendi) systemctl suspend || notify-send -u critical Sessione "Sospensione non riuscita" ;;
+  "Blocca schermo") swaylock -f -c 1e1e2e ;;
+  "Esci (logout)") labwc --exit 2>/dev/null || pkill -TERM -x -u "$(id -u)" labwc ;;
+  Batteria:*100*) sudo -n /usr/local/sbin/sasuke-charge full && notify-send -a Batteria "Batteria" "Carica fino al 100%" ;;
+  Batteria:*80*)  sudo -n /usr/local/sbin/sasuke-charge limit && notify-send -a Batteria "Batteria" "Carica limitata all'80% (riprende sotto il 75%)" ;;
+esac

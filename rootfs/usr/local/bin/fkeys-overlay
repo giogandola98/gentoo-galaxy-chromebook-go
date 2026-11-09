@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+# Show the F1..F12 map while the "search" key (○) is held.
+# Reads keyd's virtual keyboard (user in the input group) and shows/hides
+# an overlay waybar. No extra dependencies.
+import os, select, signal, struct, subprocess, sys, time
+EV_KEY, KEY_LEFTMETA = 1, 125
+SHOW_AFTER, HIDE_AFTER = 0.35, 0.12   # seconds
+FMT = "llHHi"; SZ = struct.calcsize(FMT)
+
+def find_dev():
+    name = None
+    for line in open("/proc/bus/input/devices"):
+        if line.startswith("N: "): name = line
+        if line.startswith("H: ") and name and "keyd virtual keyboard" in name:
+            for h in line.split():
+                if h.startswith("event"): return "/dev/input/" + h
+    return None
+
+dev = None
+for _ in range(30):
+    dev = find_dev()
+    if dev: break
+    time.sleep(1)
+if not dev: sys.exit("keyd virtual keyboard not found")
+
+# The bar is started on demand and closed on release (waybar starts in ~0.1 s).
+bar = None
+shown = False
+def set_shown(v):
+    global shown, bar
+    if v == shown: return
+    if v:
+        bar = subprocess.Popen(["waybar", "-c", "/etc/xdg/waybar/fkeys.jsonc", "-s", "/etc/xdg/waybar/fkeys.css"],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    elif bar:
+        bar.terminate(); bar.wait(); bar = None
+    shown = v
+def quit(*a):
+    set_shown(False); sys.exit(0)
+signal.signal(signal.SIGTERM, quit)
+
+fd = os.open(dev, os.O_RDONLY)
+held_since = released_at = None
+while True:
+    now = time.monotonic(); timeout = None
+    if held_since and not shown: timeout = max(0, held_since + SHOW_AFTER - now)
+    if released_at and shown: timeout = max(0, released_at + HIDE_AFTER - now)
+    r, _, _ = select.select([fd], [], [], timeout)
+    now = time.monotonic()
+    if r:
+        data = os.read(fd, SZ * 64)
+        for i in range(0, len(data) - SZ + 1, SZ):
+            _, _, typ, code, val = struct.unpack(FMT, data[i:i+SZ])
+            if typ == EV_KEY and code == KEY_LEFTMETA:
+                if val == 1:
+                    released_at = None
+                    if held_since is None: held_since = now
+                elif val == 0:
+                    released_at = now
+    if held_since and released_at and not shown and now - released_at >= HIDE_AFTER:
+        held_since = released_at = None          # short tap: no overlay
+    if held_since and not released_at and not shown and now - held_since >= SHOW_AFTER:
+        set_shown(True)
+    if shown and released_at and now - released_at >= HIDE_AFTER:
+        set_shown(False); held_since = released_at = None

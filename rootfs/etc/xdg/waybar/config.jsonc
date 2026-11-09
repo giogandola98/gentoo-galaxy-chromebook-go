@@ -1,0 +1,21 @@
+{
+  "layer": "top", "position": "top", "height": 28, "spacing": 6,
+  "modules-left": ["custom/apps", "wlr/taskbar"],
+  "modules-center": ["clock"],
+  "modules-right": ["custom/canon", "custom/night", "idle_inhibitor", "pulseaudio", "custom/tailscale", "bluetooth", "power-profiles-daemon", "battery", "tray", "custom/power"],
+  "custom/apps": { "format": " ☰ App ", "on-click": "pkill -x fuzzel || fuzzel", "tooltip": false },
+  "custom/canon": { "format": "📷", "on-click": "canon-webcam toggle", "tooltip-format": "Canon come webcam" },
+  "wlr/taskbar": { "format": "{icon}", "icon-size": 18, "on-click": "activate", "on-click-middle": "close", "tooltip-format": "{title}" },
+  "clock": { "format": "{:L%a %d %b  %H:%M}", "locale": "it_IT.UTF-8", "tooltip-format": "<tt>{calendar}</tt>" },
+  "idle_inhibitor": { "format": "{icon}", "format-icons": { "activated": "☕", "deactivated": "💤" } },
+  "custom/night": { "exec": "nightlight status", "return-type": "json", "interval": 60, "signal": 9, "on-click": "nightlight toggle" },
+  "custom/tailscale": { "exec": "tailscale-menu status", "return-type": "json", "interval": 15, "signal": 8, "on-click": "tailscale-menu" },
+  "pulseaudio": { "format": "Vol {volume}%", "format-muted": "Vol muto", "format-bluetooth": "Vol {volume}% ᛒ", "on-click": "pavucontrol", "scroll-step": 5 },
+  "backlight": { "format": "Luce {percent}%", "on-scroll-up": "brightnessctl set 5%+", "on-scroll-down": "brightnessctl --min-value=2% set 5%-" },
+  "network": { "format-wifi": "📶 {essid}", "format-ethernet": "🔌 LAN", "format-disconnected": "⚠ offline", "tooltip-format": "{ipaddr}", "on-click": "foot -e nmtui" },
+  "bluetooth": { "format": "ᛒ", "format-connected": "ᛒ {num_connections}", "format-disabled": "", "on-click": "blueman-manager" },
+  "power-profiles-daemon": { "format": "{icon}", "tooltip-format": "Profilo energia: {profile}\nClic: cambia", "format-icons": { "performance": "⚡ Max", "balanced": "⚖ Bil", "power-saver": "🍃 Eco", "default": "⚖" } },
+  "battery": { "states": { "warning": 25, "critical": 10 }, "format": "🔋 {capacity}% {time}", "format-time": "({H}h{M:02})", "tooltip-format": "{timeTo}\nConsumo: {power:.1f} W", "format-charging": "⚡ {capacity}%" },
+  "tray": { "spacing": 8 },
+  "custom/power": { "format": " ⏻ ", "on-click": "sasuke-power", "tooltip-format": "Spegni, riavvia, sospendi" }
+}

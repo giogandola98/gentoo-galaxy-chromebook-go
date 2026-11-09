@@ -1,0 +1,7 @@
+www-client/firefox heavy.conf
+dev-lang/rust heavy.conf
+sys-devel/llvm heavy.conf
+llvm-core/llvm heavy.conf
+llvm-core/clang heavy.conf
+dev-qt/qtwebengine heavy.conf
+sys-devel/gcc gcc-generic.conf

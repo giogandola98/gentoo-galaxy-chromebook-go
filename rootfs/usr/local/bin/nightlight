@@ -1,0 +1,13 @@
+#!/bin/sh
+# Night light (wlsunset): warmer screen from 19:30 to 07:00.
+#   nightlight toggle | on | off | status   ("status" prints JSON for waybar)
+on() { pgrep -x wlsunset >/dev/null; }
+start() { setsid wlsunset -S 07:00 -s 19:30 -d 1800 -t 4000 -T 6500 >/dev/null 2>&1 < /dev/null & }
+case "$1" in
+  on) on || start; echo on > "${XDG_STATE_HOME:-$HOME/.local/state}/nightlight" ;;
+  off) pkill -x wlsunset; echo off > "${XDG_STATE_HOME:-$HOME/.local/state}/nightlight" ;;
+  toggle) if on; then "$0" off; else "$0" on; fi; pkill -RTMIN+9 -x waybar ;;
+  autostart) [ "$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/nightlight" 2>/dev/null)" = off ] || start ;;
+  status) if on; then echo '{"text":"🌙","class":"on","tooltip":"Luce notturna attiva (19:30-07:00)\nClic: disattiva"}';
+          else echo '{"text":"☀","class":"off","tooltip":"Luce notturna spenta\nClic: attiva"}'; fi ;;
+esac

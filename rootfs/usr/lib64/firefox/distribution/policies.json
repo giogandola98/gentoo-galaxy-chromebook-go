@@ -1,0 +1,227 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableFeedbackCommands": true,
+    "DisableDefaultBrowserAgent": true,
+    "DontCheckDefaultBrowser": true,
+    "DisableSetDesktopBackground": true,
+    "CaptivePortal": false,
+    "NetworkPrediction": false,
+    "FirefoxHome": {
+      "Search": true,
+      "TopSites": true,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "SponsoredPocket": false,
+      "Snippets": false,
+      "Locked": false
+    },
+    "FirefoxSuggest": {
+      "WebSuggestions": false,
+      "SponsoredSuggestions": false,
+      "ImproveSuggest": false,
+      "Locked": true
+    },
+    "UserMessaging": {
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "MoreFromMozilla": false,
+      "FirefoxLabs": false,
+      "Locked": true
+    },
+    "GenerativeAI": {
+      "Enabled": false,
+      "Locked": false
+    },
+    "EnableTrackingProtection": {
+      "Value": true,
+      "Cryptomining": true,
+      "Fingerprinting": true,
+      "EmailTracking": true,
+      "Locked": false
+    },
+    "ExtensionSettings": {
+      "uBlock0@raymondhill.net": {
+        "installation_mode": "normal_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+      }
+    },
+    "Preferences": {
+      "datareporting.healthreport.uploadEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.policy.dataSubmissionEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.usage.uploadEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.unified": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.archive.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.server": {
+        "Value": "data:,",
+        "Status": "locked"
+      },
+      "toolkit.telemetry.updatePing.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.bhrPing.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.firstShutdownPing.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.newProfilePing.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.shutdownPingSender.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.coverage.opt-out": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "browser.ping-centre.telemetry": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.feeds.telemetry": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.telemetry": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.showSponsored": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.showSponsoredTopSites": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.discovery.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.tabs.crashReporting.sendReport": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "breakpad.reportURL": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "app.shield.optoutstudies.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "app.normandy.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "app.normandy.api_url": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "dom.private-attribution.submission.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "extensions.getAddons.showPane": {
+        "Value": false,
+        "Status": "default"
+      },
+      "extensions.htmlaboutaddons.recommendations.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.connectivity-service.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "media.ffmpeg.vaapi.enabled": {
+        "Value": true,
+        "Status": "default"
+      },
+      "media.hardware-video-decoding.force-enabled": {
+        "Value": true,
+        "Status": "default"
+      },
+      "gfx.webrender.all": {
+        "Value": true,
+        "Status": "default"
+      },
+      "browser.cache.disk.capacity": {
+        "Value": 262144,
+        "Status": "default"
+      },
+      "browser.sessionstore.interval": {
+        "Value": 60000,
+        "Status": "default"
+      },
+      "browser.tabs.unloadOnLowMemory": {
+        "Value": true,
+        "Status": "default"
+      },
+      "dom.ipc.processCount": {
+        "Value": 4,
+        "Status": "default"
+      },
+      "intl.locale.requested": {
+        "Value": "it,en-US",
+        "Status": "default"
+      }
+    },
+    "Handlers": {
+      "mimeTypes": {
+        "application/x-ica": {
+          "action": "useHelperApp",
+          "ask": false,
+          "handlers": [
+            {
+              "name": "Citrix Workspace",
+              "path": "/usr/local/bin/wfica"
+            }
+          ]
+        }
+      },
+      "extensions": {
+        "ica": {
+          "action": "useHelperApp",
+          "ask": false,
+          "handlers": [
+            {
+              "name": "Citrix Workspace",
+              "path": "/usr/local/bin/wfica"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

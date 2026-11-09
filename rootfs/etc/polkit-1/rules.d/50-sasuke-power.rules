@@ -1,0 +1,8 @@
+// Local desktop user (wheel) may power off / reboot / suspend even while other
+// sessions (e.g. SSH) are open: there is no polkit password prompt on this desktop.
+polkit.addRule(function(action, subject) {
+  if (subject.local && subject.active && subject.isInGroup("wheel") &&
+      /^org\.freedesktop\.login1\.(power-off|reboot|suspend)(-multiple-sessions)?$/.test(action.id)) {
+    return polkit.Result.YES;
+  }
+});

@@ -1,0 +1,20 @@
+#!/bin/sh
+# Battery charge limit (ChromeOS EC).
+#   sasuke-charge limit   stop at 80% (resume below 75%) - best for battery life
+#   sasuke-charge full    charge to 100% (e.g. before a trip)
+#   sasuke-charge apply   re-apply the saved mode (boot)
+#   sasuke-charge status
+B=/sys/class/power_supply/BAT0; S=/etc/sasuke/charge-mode
+set_mode() {
+  case "$1" in
+    limit) echo 80 > $B/charge_control_end_threshold; echo 75 > $B/charge_control_start_threshold ;;
+    full)  echo 0 > $B/charge_control_start_threshold; echo 100 > $B/charge_control_end_threshold ;;
+    *) echo "unknown mode: $1" >&2; exit 1 ;;
+  esac
+}
+case "$1" in
+  limit|full) set_mode "$1"; echo "$1" > $S; echo "charge mode: $1" ;;
+  apply) set_mode "$(cat $S 2>/dev/null || echo limit)" ;;
+  status) echo "mode: $(cat $S 2>/dev/null || echo limit) ($(cat $B/charge_control_start_threshold)-$(cat $B/charge_control_end_threshold)%) battery: $(cat $B/capacity)% $(cat $B/status)" ;;
+  *) sed -n '2,6p' "$0" ;;
+esac

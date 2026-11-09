@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Citrix Workspace Engine
+Comment=Apre i file .ica scaricati dal portale Citrix
+Exec=/usr/local/bin/wfica %f
+Icon=/opt/Citrix/ICAClient/icons/manager.png
+Terminal=false
+Type=Application
+NoDisplay=true
+MimeType=application/x-ica;

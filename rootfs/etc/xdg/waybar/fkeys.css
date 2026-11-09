@@ -1,0 +1,11 @@
+* { font-family: "Noto Sans", "Noto Color Emoji"; font-size: 15px; }
+window#waybar { background: transparent; color: #cdd6f4; }
+window#waybar.fkeys #custom-esc, window#waybar.fkeys #custom-f1, window#waybar.fkeys #custom-f2,
+window#waybar.fkeys #custom-f3, window#waybar.fkeys #custom-f4, window#waybar.fkeys #custom-f5,
+window#waybar.fkeys #custom-f6, window#waybar.fkeys #custom-f7, window#waybar.fkeys #custom-f8,
+window#waybar.fkeys #custom-f9, window#waybar.fkeys #custom-f10, window#waybar.fkeys #custom-pw {
+  min-width: 103px; margin: 4px 3px; border-radius: 8px;
+  background: #1e1e2e; border: 1px solid #89b4fa;
+}
+#custom-esc, #custom-pw { color: #7f849c; }
+#custom-hint { background: #1e1e2e; border: 1px solid #89b4fa; border-radius: 8px; padding: 0 16px; font-size: 13px; }

@@ -1,0 +1,19 @@
+# installer images
+iso/
+*.iso
+# local builder settings (contain the host's Tailscale IP)
+builder/.env
+builder/data/
+# Citrix Workspace archives are not redistributable
+linuxx64-*.tar.gz
+*.ica
+# scratch / machine-specific notes
+build/phase2.sh
+kernel/config-cachyos-*
+kernel/lsmod-*
+# secrets, never
+*.key
+*.pem
+id_*
+.DS_Store
+._*

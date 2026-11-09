@@ -1,0 +1,15 @@
+dbus-update-activation-environment --systemd --all >/dev/null 2>&1
+swaybg -c '#1e1e2e' >/dev/null 2>&1 &
+waybar >/dev/null 2>&1 &
+mako -c /etc/xdg/mako/config >/dev/null 2>&1 &
+nm-applet --indicator >/dev/null 2>&1 &
+blueman-applet >/dev/null 2>&1 &
+/usr/libexec/polkit-gnome-authentication-agent-1 >/dev/null 2>&1 &
+kanshi >/dev/null 2>&1 &
+swayidle -w timeout 300 'brightnessctl -s set 10%' resume 'brightnessctl -r' \
+            timeout 600 'swaylock -f -c 1e1e2e' \
+            before-sleep 'swaylock -f -c 1e1e2e' >/dev/null 2>&1 &
+fkeys-overlay >/dev/null 2>&1 &
+wl-paste --watch cliphist store >/dev/null 2>&1 &
+udiskie --tray --notify --automount >/dev/null 2>&1 &
+nightlight autostart

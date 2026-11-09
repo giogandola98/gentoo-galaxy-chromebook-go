@@ -1,0 +1,23 @@
+# audio: pipewire instead of pulseaudio
+media-video/pipewire sound-server bluetooth extra
+media-sound/pulseaudio -daemon
+# network
+net-misc/networkmanager iwd -wext
+net-wireless/bluez -deprecated
+# kernel
+sys-kernel/installkernel dracut grub
+# browser
+www-client/firefox -telemetry hwaccel lto -geckodriver -wifi
+# OBS and video
+media-video/ffmpeg vaapi x264 x265 opus vpx dav1d v4l
+media-video/obs-studio v4l pipewire
+media-libs/mesa vaapi
+# VNC client only
+net-misc/tigervnc -server -opengl -wayland viewer
+# Canon camera in the file manager
+gnome-base/gvfs gphoto2 mtp udisks
+# no xfce panel plugin
+xfce-base/thunar -trash-panel-plugin
+gui-apps/waybar network tray wifi backlight mpris
+dev-libs/libdbusmenu gtk3
+gnome-extra/nm-applet appindicator

@@ -1,0 +1,3 @@
+LABEL=gentoo  /     ext4  noatime,commit=60  0 1
+LABEL=EFI     /efi  vfat  noatime,umask=0077 0 2
+tmpfs         /tmp  tmpfs noatime,size=1G,mode=1777 0 0

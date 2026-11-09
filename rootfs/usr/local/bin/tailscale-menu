@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+# Graphical Tailscale: waybar module + fuzzel menu (no terminal).
+#   tailscale-menu status   -> JSON for waybar (text, tooltip, class)
+#   tailscale-menu          -> menu: on/off, exit node, LAN, routes, devices...
+# The user is tailscaled's "operator", so no sudo needed.
+import json, subprocess, sys
+
+def ts(*args, check=False):
+    return subprocess.run(["tailscale", *args], capture_output=True, text=True, check=check)
+
+def status():
+    r = ts("status", "--json")
+    try:
+        return json.loads(r.stdout)
+    except Exception:
+        return None
+
+def prefs():
+    r = ts("debug", "prefs")
+    try:
+        return json.loads(r.stdout)
+    except Exception:
+        return {}
+
+def name(peer):
+    return (peer.get("HostName") or peer.get("DNSName", "").split(".")[0] or "?")
+
+def notify(msg):
+    subprocess.run(["notify-send", "-a", "Tailscale", "Tailscale", msg])
+
+def menu(lines, prompt):
+    r = subprocess.run(["fuzzel", "--dmenu", "--prompt", prompt, "--width", "48",
+                        "--lines", str(min(len(lines), 15))],
+                       input="\n".join(lines), capture_output=True, text=True)
+    return r.stdout.strip()
+
+def waybar():
+    st = status()
+    if not st or st.get("BackendState") != "Running":
+        state = (st or {}).get("BackendState", "spento")
+        print(json.dumps({"text": "TS off", "class": "off",
+                          "tooltip": f"Tailscale: {state}\nClic: menu"}))
+        return
+    peers = (st.get("Peer") or {}).values()
+    exit_peer = next((p for p in peers if p.get("ExitNode")), None)
+    online = sum(1 for p in (st.get("Peer") or {}).values() if p.get("Online"))
+    ip = (st.get("Self", {}).get("TailscaleIPs") or ["?"])[0]
+    text = "TS → " + name(exit_peer) if exit_peer else "TS"
+    tip = f"Tailscale attivo\nIP: {ip}\nDispositivi online: {online}"
+    if exit_peer:
+        tip += f"\nTraffico internet via: {name(exit_peer)}"
+    print(json.dumps({"text": text, "class": "exit" if exit_peer else "on", "tooltip": tip + "\nClic: menu"}))
+
+def main_menu():
+    st = status()
+    running = bool(st and st.get("BackendState") == "Running")
+    p = prefs()
+    if not running:
+        if menu(["Attiva Tailscale"], "Tailscale: ") == "Attiva Tailscale":
+            r = ts("up")
+            notify("Attivato" if r.returncode == 0 else "Errore: " + (r.stderr.strip() or "?")[:200])
+        return
+    peers = list((st.get("Peer") or {}).values())
+    exit_peer = next((x for x in peers if x.get("ExitNode")), None)
+    lan = p.get("ExitNodeAllowLANAccess", False)
+    routes = p.get("RouteAll", False)
+    adv = any(r in ("0.0.0.0/0", "::/0") for r in (p.get("AdvertiseRoutes") or []))
+    items = [
+        "Nodo di uscita: " + (name(exit_peer) if exit_peer else "nessuno") + "  (cambia…)",
+        ("☑" if lan else "☐") + " Accesso alla rete locale mentre uso il nodo di uscita",
+        ("☑" if routes else "☐") + " Accetta le route (subnet) degli altri dispositivi",
+        ("☑" if adv else "☐") + " Offri questo Chromebook come nodo di uscita",
+        "Dispositivi (copia indirizzo)…",
+        "Copia il mio IP Tailscale",
+        "Apri la console web di Tailscale",
+        "Disattiva Tailscale",
+    ]
+    c = menu(items, "Tailscale: ")
+    if not c:
+        return
+    if c.startswith("Nodo di uscita"):
+        cands = [x for x in peers if x.get("ExitNodeOption")]
+        opts = ["Nessuno (internet diretto)"] + [
+            f"{name(x)}{'' if x.get('Online') else '  (offline)'}" for x in cands]
+        s = menu(opts, "Nodo di uscita: ")
+        if not s:
+            return
+        if s.startswith("Nessuno"):
+            r = ts("set", "--exit-node=")
+            notify("Internet diretto (nessun nodo di uscita)" if r.returncode == 0 else r.stderr[:200])
+        else:
+            host = s.split("  (")[0]
+            peer = next(x for x in cands if name(x) == host)
+            r = ts("set", "--exit-node=" + peer["TailscaleIPs"][0])
+            notify(f"Traffico internet via {host}" if r.returncode == 0 else r.stderr[:200])
+    elif "rete locale" in c:
+        ts("set", f"--exit-node-allow-lan-access={'false' if lan else 'true'}")
+        notify("Accesso LAN " + ("disattivato" if lan else "attivato"))
+    elif "route" in c:
+        ts("set", f"--accept-routes={'false' if routes else 'true'}")
+        notify("Route " + ("ignorate" if routes else "accettate"))
+    elif "Offri questo" in c:
+        r = ts("set", f"--advertise-exit-node={'false' if adv else 'true'}")
+        notify(("Non più offerto come nodo di uscita" if adv else
+                "Offerto come nodo di uscita (approvalo nella console web)") if r.returncode == 0 else r.stderr[:200])
+    elif c.startswith("Dispositivi"):
+        opts = [f"{name(x):<24} {(x.get('TailscaleIPs') or ['-'])[0]:<16} {'online' if x.get('Online') else 'offline'}"
+                for x in sorted(peers, key=lambda x: (not x.get("Online"), name(x)))]
+        s = menu(opts, "Copia IP: ")
+        if s:
+            ip = s.split()[1]
+            subprocess.run(["wl-copy", ip])
+            notify(f"Copiato {ip}")
+    elif c.startswith("Copia il mio"):
+        ip = (st.get("Self", {}).get("TailscaleIPs") or [""])[0]
+        subprocess.run(["wl-copy", ip])
+        notify(f"Copiato {ip}")
+    elif c.startswith("Apri la console"):
+        subprocess.Popen(["firefox", "https://login.tailscale.com/admin/machines"])
+    elif c.startswith("Disattiva"):
+        ts("down")
+        notify("Disattivato")
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "status":
+        waybar()
+    else:
+        main_menu()
+        subprocess.run(["pkill", "-RTMIN+8", "-x", "waybar"])

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<labwc_config>
+  <core><gap>4</gap></core>
+  <theme><cornerRadius>6</cornerRadius><font place=""><name>Noto Sans</name><size>10</size></font></theme>
+  <placement><policy>cascade</policy></placement>
+  <focus><followMouse>no</followMouse><raiseOnFocus>yes</raiseOnFocus></focus>
+  <snapping><range inner="12" outer="12" /><topMaximize>yes</topMaximize></snapping>
+  <regions>
+    <region name="alto-sx"  x="0%"  y="0%"  width="50%"  height="50%" />
+    <region name="alto"     x="0%"  y="0%"  width="100%" height="50%" />
+    <region name="alto-dx"  x="50%" y="0%"  width="50%"  height="50%" />
+    <region name="sinistra" x="0%"  y="0%"  width="50%"  height="100%" />
+    <region name="destra"   x="50%" y="0%"  width="50%"  height="100%" />
+    <region name="basso-sx" x="0%"  y="50%" width="50%"  height="50%" />
+    <region name="basso"    x="0%"  y="50%" width="100%" height="50%" />
+    <region name="basso-dx" x="50%" y="50%" width="50%"  height="50%" />
+  </regions>
+  <keyboard>
+    <default />
+    <keybind key="W-Return"><action name="Execute" command="foot" /></keybind>
+    <keybind key="W-e"><action name="Execute" command="thunar" /></keybind>
+    <keybind key="W-l"><action name="Execute" command="swaylock -f -c 1e1e2e" /></keybind>
+    <!-- Window layout: Ctrl + ○ + keys laid out like a screen grid
+         Q W E      alto-sx   top half     alto-dx
+         A S D  =   left half maximize     right half
+         Z X C      basso-sx  bottom half  basso-dx      ○+Ctrl+M = minimize -->
+    <keybind key="C-W-q"><action name="SnapToRegion" region="alto-sx" /></keybind>
+    <keybind key="C-W-w"><action name="SnapToRegion" region="alto" /></keybind>
+    <keybind key="C-W-e"><action name="SnapToRegion" region="alto-dx" /></keybind>
+    <keybind key="C-W-a"><action name="SnapToRegion" region="sinistra" /></keybind>
+    <keybind key="C-W-s"><action name="ToggleMaximize" /></keybind>
+    <keybind key="C-W-d"><action name="SnapToRegion" region="destra" /></keybind>
+    <keybind key="C-W-z"><action name="SnapToRegion" region="basso-sx" /></keybind>
+    <keybind key="C-W-x"><action name="SnapToRegion" region="basso" /></keybind>
+    <keybind key="C-W-c"><action name="SnapToRegion" region="basso-dx" /></keybind>
+    <keybind key="C-W-m"><action name="Iconify" /></keybind>
+    <keybind key="W-q"><action name="Close" /></keybind>
+    <keybind key="W-c"><action name="Execute" command="canon-webcam toggle" /></keybind>
+    <keybind key="W-v"><action name="Execute" command="clipboard-history" /></keybind>
+    <!-- Fullscreen Citrix/RDP: W-Escape hands shortcuts to the remote window and back -->
+    <keybind key="W-Escape"><action name="ToggleKeybinds" /></keybind>
+    <keybind key="F11"><action name="ToggleFullscreen" /></keybind>
+    <keybind key="Print"><action name="Execute" command="sh -c 'grim -g &quot;$(slurp)&quot; - | wl-copy'" /></keybind>
+    <keybind key="XF86LaunchA"><action name="Execute" command="sh -c &apos;pkill -x fuzzel || fuzzel&apos;" /></keybind>
+    <keybind key="XF86MonBrightnessUp"><action name="Execute" command="osd light-up" /></keybind>
+    <keybind key="XF86MonBrightnessDown"><action name="Execute" command="osd light-down" /></keybind>
+    <keybind key="XF86AudioRaiseVolume"><action name="Execute" command="osd vol-up" /></keybind>
+    <keybind key="XF86AudioLowerVolume"><action name="Execute" command="osd vol-down" /></keybind>
+    <keybind key="XF86AudioMute"><action name="Execute" command="osd mute" /></keybind>
+  </keyboard>
+  <libinput>
+    <device category="touchpad">
+      <tap>yes</tap><tapButtonMap>lrm</tapButtonMap><naturalScroll>yes</naturalScroll>
+      <disableWhileTyping>yes</disableWhileTyping><clickMethod>clickfinger</clickMethod>
+    </device>
+  </libinput>
+</labwc_config>

@@ -1,0 +1,13 @@
+[Unit]
+Description=SASUKE firewall (nftables)
+Wants=network-pre.target
+Before=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/sasuke/nftables.conf
+ExecStop=/usr/sbin/nft delete table inet sasuke
+
+[Install]
+WantedBy=multi-user.target

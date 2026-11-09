@@ -1,0 +1,3 @@
+#!/bin/sh
+# Clipboard history picker (cliphist + fuzzel). Bound to Super+V.
+cliphist list | fuzzel --dmenu --prompt 'Appunti: ' --width 70 | cliphist decode | wl-copy

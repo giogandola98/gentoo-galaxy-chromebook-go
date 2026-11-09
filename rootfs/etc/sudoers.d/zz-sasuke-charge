@@ -1,0 +1,2 @@
+# the desktop power menu may switch charge mode without a password
+%wheel ALL=(root) NOPASSWD: /usr/local/sbin/sasuke-charge limit, /usr/local/sbin/sasuke-charge full

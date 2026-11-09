@@ -1,0 +1,90 @@
+[
+ {
+  "name": "fkeys",
+  "layer": "overlay",
+  "position": "bottom",
+  "exclusive": false,
+  "height": 44,
+  "start_hidden": false,
+  "ipc": false,
+  "modules-left": [
+   "custom/esc",
+   "custom/f1",
+   "custom/f2",
+   "custom/f3",
+   "custom/f4",
+   "custom/f5",
+   "custom/f6",
+   "custom/f7",
+   "custom/f8",
+   "custom/f9",
+   "custom/f10",
+   "custom/pw"
+  ],
+  "custom/esc": {
+   "format": "<b>Esc</b>  <small></small>",
+   "tooltip": false
+  },
+  "custom/f1": {
+   "format": "<b>F1</b>  <small>←</small>",
+   "tooltip": false
+  },
+  "custom/f2": {
+   "format": "<b>F2</b>  <small>→</small>",
+   "tooltip": false
+  },
+  "custom/f3": {
+   "format": "<b>F3</b>  <small>⟳</small>",
+   "tooltip": false
+  },
+  "custom/f4": {
+   "format": "<b>F4</b>  <small>⛶</small>",
+   "tooltip": false
+  },
+  "custom/f5": {
+   "format": "<b>F5</b>  <small>▭|||</small>",
+   "tooltip": false
+  },
+  "custom/f6": {
+   "format": "<b>F6</b>  <small>☼</small>",
+   "tooltip": false
+  },
+  "custom/f7": {
+   "format": "<b>F7</b>  <small>☀</small>",
+   "tooltip": false
+  },
+  "custom/f8": {
+   "format": "<b>F8</b>  <small>🔇</small>",
+   "tooltip": false
+  },
+  "custom/f9": {
+   "format": "<b>F9</b>  <small>🔉</small>",
+   "tooltip": false
+  },
+  "custom/f10": {
+   "format": "<b>F10</b>  <small>🔊</small>",
+   "tooltip": false
+  },
+  "custom/pw": {
+   "format": "<small>⏻</small>",
+   "tooltip": false
+  },
+  "margin-bottom": 4
+ },
+ {
+  "name": "fkeys2",
+  "layer": "overlay",
+  "position": "bottom",
+  "exclusive": false,
+  "height": 30,
+  "start_hidden": false,
+  "modules-center": [
+   "custom/hint"
+  ],
+  "custom/hint": {
+   "format": "○ + '  = <b>F11</b>     ○ + ì  = <b>F12</b>     ○ + ⌫ = Canc     ○ + V = appunti     ○ + frecce = PagSu/PagGiù/Inizio/Fine     <b>Ctrl + ○ + Q W E / A S D / Z X C</b> = disponi finestra",
+   "tooltip": false
+  },
+  "margin-bottom": 52
+ }
+]

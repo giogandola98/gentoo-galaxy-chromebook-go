@@ -1,0 +1,59 @@
+#!/bin/bash
+# Update the Chromebook with packages built by the SASUKE builder (over Tailscale).
+#   sasuke-update           install whatever the builder already has ready
+#   sasuke-update --build   ask the builder to sync and rebuild first (may take hours)
+# Never compiles locally: if the builder is unreachable it stops.
+set -o pipefail
+[[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
+BUILDER_HOST=$(sed -n 's|^sync-uri *= *http://\([^:/]*\).*|\1|p' /etc/portage/binrepos.conf/sasuke.conf)
+# BUILDER_USER = account on the build server allowed to start a build (see README)
+[[ -f /etc/sasuke/update.conf ]] && . /etc/sasuke/update.conf
+BUILDER_USER=${BUILDER_USER:-builder}
+BINHOST="http://${BUILDER_HOST}:8780"
+KV_RUNNING=$(uname -r)
+
+say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
+die() { printf '\n\033[1;31m!! %s\033[0m\n' "$*"; exit 1; }
+
+say "Checking builder ($BUILDER_HOST)"
+curl -sfm 8 "$BINHOST/Packages" -o /dev/null || die "Builder unreachable: is the PC on and Tailscale up?"
+
+if [[ $1 == --build ]]; then
+  say "Builder: sync + rebuild (this can take a long time)"
+  # the key is restricted on the builder side to run only "builder update"
+  ssh -o BatchMode=yes -i /root/.ssh/sasuke-builder "${BUILDER_USER}@${BUILDER_HOST}" || die "Build on the builder failed"
+fi
+
+say "Syncing package metadata"
+emaint sync -a >/dev/null 2>&1 || echo "(repository sync failed, using the local copy)"
+
+say "Installing updates"
+emerge -uDNq --getbinpkgonly --with-bdeps=n @world || die "emerge failed"
+emerge --depclean -q
+# downloaded packages are always available again on the builder: keep the eMMC clean
+rm -rf /var/cache/binhost/*/* /var/cache/binpkgs/*
+
+say "Kernel"
+KV_NEW=$(curl -sfm 8 "$BINHOST/sasuke-kernel/LATEST")
+KT="kernel-${KV_NEW}-sasuke.tar.zst"
+SUM_NEW=$(curl -sfm 8 "$BINHOST/sasuke-kernel/$KT.sha256" | awk '{print $1}')
+SUM_OLD=$(cat /var/lib/sasuke/kernel.sha256 2>/dev/null)
+# same version rebuilt (new config) is detected by checksum, not only by version
+if [[ -n $KV_NEW && -n $SUM_NEW && $SUM_NEW != "$SUM_OLD" ]]; then
+  echo "New kernel $KV_NEW"
+  T=$(mktemp)
+  curl -sf "$BINHOST/sasuke-kernel/$KT" -o "$T" || die "kernel download failed"
+  echo "$SUM_NEW  $T" | sha256sum -c --quiet || die "kernel checksum mismatch"
+  tar -C / --keep-directory-symlink --no-same-owner --zstd -xf "$T" boot lib || die "kernel unpack failed"
+  rm -f "$T"
+  depmod "${KV_NEW}-gentoo-sasuke"
+  dracut -q -f --kver "${KV_NEW}-gentoo-sasuke" "/boot/initramfs-${KV_NEW}-gentoo-sasuke.img"
+  grub-mkconfig -o /boot/grub/grub.cfg 2>/dev/null
+  mkdir -p /var/lib/sasuke && echo "$SUM_NEW" > /var/lib/sasuke/kernel.sha256
+  echo "Reboot to use the new kernel (running: $KV_RUNNING)"
+else
+  echo "Kernel up to date ($KV_RUNNING)"
+fi
+
+/usr/local/sbin/citrix-notelemetry >/dev/null 2>&1
+say "Done"

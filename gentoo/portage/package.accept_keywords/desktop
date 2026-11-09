@@ -1,0 +1,6 @@
+gui-apps/kanshi ~amd64
+net-misc/icaclient ~amd64
+gui-wm/labwc ~amd64
+media-video/obs-studio ~amd64
+dev-libs/libscfg ~amd64
+app-office/obsidian ~amd64

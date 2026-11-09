@@ -1,0 +1,9 @@
+* { font-family: "Noto Sans", "Noto Color Emoji"; font-size: 13px; }
+window#waybar { background: rgba(30,30,46,0.92); color: #cdd6f4; }
+#taskbar button { padding: 0 4px; border-radius: 4px; }
+#taskbar button.active { background: #45475a; }
+#battery.warning { color: #f9e2af; } #battery.critical { color: #f38ba8; }
+#clock { font-weight: bold; }
+#custom-tailscale.on { color: #a6e3a1; }
+#custom-tailscale.exit { color: #f9e2af; }
+#custom-tailscale.off { color: #7f849c; }

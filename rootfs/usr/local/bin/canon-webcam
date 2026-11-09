@@ -1,0 +1,18 @@
+#!/bin/bash
+# Use a USB-connected Canon EOS as a webcam (/dev/video9 "Canon EOS")
+# Start/stop: canon-webcam [start|stop|toggle]
+PIDF=/run/user/$(id -u)/canon-webcam.pid
+start() {
+  pkill -f gvfsd-gphoto2 2>/dev/null; pkill -f gvfs-gphoto2-volume-monitor 2>/dev/null
+  gphoto2 --auto-detect | grep -q usb: || { notify-send "Canon" "Nessuna fotocamera trovata"; exit 1; }
+  ( gphoto2 --stdout --capture-movie 2>/dev/null | ffmpeg -loglevel error -i - -vcodec rawvideo -pix_fmt yuv420p -threads 2 -f v4l2 /dev/video9 ) &
+  echo $! > "$PIDF"; notify-send "Canon" "Webcam attiva (Canon EOS)"
+}
+stop() {
+  pkill -f "gphoto2 --stdout --capture-movie"; pkill -f "ffmpeg.*video9"; rm -f "$PIDF"
+  notify-send "Canon" "Webcam spenta"
+}
+case "$1" in
+  start) start;; stop) stop;;
+  *) if [ -f "$PIDF" ]; then stop; else start; fi;;
+esac

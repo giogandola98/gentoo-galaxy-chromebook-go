@@ -1,0 +1,4 @@
+#!/bin/sh
+# Launch Citrix (wfica) with the FFmpeg 6 libraries from ffmpeg-compat:6, which Gentoo's wrapper leaves out.
+export LD_LIBRARY_PATH="/usr/lib/ffmpeg6/lib64:/opt/Citrix/ICAClient${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec /opt/Citrix/ICAClient/wfica "$@"

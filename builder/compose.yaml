@@ -1,0 +1,56 @@
+# Builder + binhost for the SASUKE Chromebook.
+#   docker compose build                          # build the image
+#   docker compose up -d                          # start builder (idle) and binhost
+#   docker compose exec builder builder update    # sync + build whatever changed
+#
+# DATA = directory with persistent data (repositories, sources, packages, kernel).
+# BIND = address the binhost listens on: use this machine's Tailscale IP
+#        (tailscale ip -4) so packages are reachable only from your tailnet.
+name: sasuke
+
+services:
+  builder:
+    build:
+      context: ..
+      dockerfile: builder/Dockerfile
+    image: sasuke-builder:latest
+    command: daemon
+    restart: unless-stopped
+    cap_add: [SYS_PTRACE]          # Portage sandbox
+    security_opt: [seccomp=unconfined]
+    volumes:
+      - ${DATA:-./data}/repos:/var/db/repos
+      - ${DATA:-./data}/distfiles:/var/cache/distfiles
+      - ${DATA:-./data}/binpkgs:/var/cache/binpkgs
+      - ${DATA:-./data}/kernel:/usr/src/build
+
+  binhost:
+    image: docker.io/library/nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${BIND:-127.0.0.1}:8780:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${DATA:-./data}/binpkgs:/srv/binpkgs:ro
+      - ${DATA:-./data}/binpkgs-ultra:/srv/binpkgs-ultra:ro
+
+  # "Ultra" variant: global LTO + PGO (Firefox) + clang full-LTO kernel. Separate packages,
+  # served under /ultra: the Chromebook switches to it by changing its binrepos.conf sync-uri.
+  #   docker compose --profile ultra up -d builder-ultra
+  #   docker compose exec builder-ultra builder update
+  builder-ultra:
+    profiles: [ultra]
+    image: sasuke-builder:latest
+    command: daemon
+    restart: unless-stopped
+    environment:
+      ULTRA: 1
+      BUILD_JOBS: ${ULTRA_JOBS:-}     # empty = automatic (cores / RAM)
+      BUILD_NICE: ${ULTRA_NICE:-15}   # 0 = full priority
+    cap_add: [SYS_PTRACE]
+    security_opt: [seccomp=unconfined]
+    volumes:
+      - ${DATA:-./data}/repos:/var/db/repos
+      - ${DATA:-./data}/distfiles:/var/cache/distfiles
+      - ${DATA:-./data}/binpkgs-ultra:/var/cache/binpkgs
+      - ${DATA:-./data}/kernel-ultra:/usr/src/build

@@ -1,0 +1,20 @@
+#!/bin/sh
+# Pop-up indicator for volume and brightness (mako notification with a level bar).
+# usage: osd vol-up|vol-down|mute|mic-mute|light-up|light-down
+case "$1" in
+  vol-up)     wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+ ;;
+  vol-down)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+  mute)       wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+  light-up)   brightnessctl -q set 5%+ ;;
+  light-down) brightnessctl -q --min-value=2% set 5%- ;;
+esac
+case "$1" in
+  vol-*|mute)
+    v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+    p=$(echo "$v" | awk '{printf "%d", $2*100+0.5}')
+    case "$v" in *MUTED*) t="Volume: muto" ;; *) t="Volume: $p%" ;; esac ;;
+  light-*)
+    p=$(brightnessctl -m | cut -d, -f4 | tr -d %)
+    t="Luminosità: $p%" ;;
+esac
+notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:osd -h int:value:"$p" "$t"

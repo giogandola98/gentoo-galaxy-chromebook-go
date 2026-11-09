@@ -1,0 +1,18 @@
+#!/bin/sh
+# Turn off Citrix Workspace telemetry (CEIP, Google Analytics, LaunchDarkly, network info to CAS).
+# The real module.ini is /etc/icaclient/module.ini (/opt only has a symlink).
+M=${ROOT:-}/etc/icaclient/module.ini
+[ -f "$M" ] || exit 0
+sed -i --follow-symlinks \
+       -e 's/^EnableCeip=.*/EnableCeip=Disable/' \
+       -e 's/^DisableHeartBeat=.*/DisableHeartBeat=True/' \
+       -e 's/^EnableLaunchDarkly=.*/EnableLaunchDarkly=Disable/' \
+       -e 's/^EnableSendNetworkInfoToCAS=.*/EnableSendNetworkInfoToCAS=Disable/' "$M"
+echo "Citrix: telemetry disabled"
+
+# Citrix's OpenGL renderer fails to create its EGL window under labwc/XWayland
+# (EGL itself works): use the software renderer, which is fine for a remote desktop.
+for W in ${ROOT:-}/opt/Citrix/ICAClient/config/wfclient.ini /home/*/.ICAClient/wfclient.ini; do
+  [ -f "$W" ] || continue
+  grep -q '^OpenGLEnabled' "$W" || sed -i --follow-symlinks '/^\[Thinwire3.0\]/a OpenGLEnabled=False\nTWIOpenGLEnabled=False' "$W"
+done

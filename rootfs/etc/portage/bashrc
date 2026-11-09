@@ -1,0 +1,11 @@
+if [[ ${CATEGORY}/${PN} == media-libs/alsa-ucm-conf && ${EBUILD_PHASE} == postinst ]]; then
+  if [[ -d /usr/local/share/alsa-ucm-conf-cros ]]; then
+    cp -r /usr/local/share/alsa-ucm-conf-cros/ucm2/* "${ROOT}"/usr/share/alsa/ucm2/
+    cp -r /usr/local/share/alsa-ucm-conf-cros/overrides/* "${ROOT}"/usr/share/alsa/ucm2/conf.d/
+    einfo "Chromebook UCM profiles (SASUKE) reinstalled"
+  fi
+fi
+
+if [[ ${CATEGORY}/${PN} == net-misc/icaclient && ${EBUILD_PHASE} == postinst ]]; then
+  ROOT="${ROOT}" /usr/local/sbin/citrix-notelemetry
+fi

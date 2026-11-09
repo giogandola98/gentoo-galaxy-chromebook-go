@@ -17,7 +17,7 @@ COPY builder/repos.conf /etc/portage/repos.conf/sasuke.conf
 RUN rm -f /etc/portage/repos.conf/gentoo.conf.default 2>/dev/null; \
     ln -sfn ../../var/db/repos/gentoo/profiles/default/linux/amd64/23.0/desktop/systemd /etc/portage/make.profile; \
     chmod +x /usr/local/bin/builder; \
-    printf 'COMMON_FLAGS="-O2 -pipe -march=x86-64-v2 -mtune=tremont"\nMAKEOPTS="-j2"\n' > /etc/portage/cpu.conf && touch /etc/portage/signing.conf
+    printf 'COMMON_FLAGS="-O2 -pipe -march=x86-64-v2 -mtune=tremont"\nMAKEOPTS="-j2"\n' > /etc/portage/cpu.conf && touch /etc/portage/signing.conf /etc/portage/late.conf
 
 VOLUME ["/var/db/repos", "/var/cache/distfiles", "/var/cache/binpkgs", "/usr/src/build"]
 ENTRYPOINT ["/usr/local/bin/builder"]

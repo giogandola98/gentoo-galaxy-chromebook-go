@@ -60,6 +60,7 @@ sys-auth/rtkit
 sys-power/upower
 net-firewall/nftables
 gui-apps/wlsunset
+gui-apps/wlopm
 app-misc/cliphist
 sys-fs/udiskie
 x11-themes/papirus-icon-theme

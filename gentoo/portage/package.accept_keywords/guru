@@ -4,4 +4,5 @@ gui-apps/fuzzel ~amd64
 gui-apps/wlr-randr ~amd64
 app-misc/brightnessctl ~amd64
 gui-apps/wlsunset ~amd64
+gui-apps/wlopm ~amd64
 app-misc/cliphist ~amd64

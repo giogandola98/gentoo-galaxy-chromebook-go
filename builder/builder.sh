@@ -2,7 +2,7 @@
 # SASUKE builder - commands run inside the container.
 #   builder daemon   stay up (compose service); use "docker compose exec builder builder <cmd>"
 #   builder update   sync repos and rebuild whatever changed (@world + kernel if needed)
-#   builder world    @world only, no sync
+#   builder world    @world only, no sync ("full": every package, e.g. first ULTRA build)
 #   builder kernel   build the kernel version in /etc/sasuke/KERNEL_VERSION ("force" to rebuild)
 #   builder cpu      regenerate /etc/portage/cpu.conf for this machine's CPU
 #   builder sign     sign every package not signed yet (after enabling signing)
@@ -53,6 +53,10 @@ EOF
     printf '%s\n' "LDFLAGS=\"\${LDFLAGS} $lto\"" 'USE="${USE} lto pgo"' >> /etc/portage/cpu.conf
     mkdir -p /etc/portage/env
     printf '%s\n' "CFLAGS=\"\${CFLAGS/$lto/}\"" "CXXFLAGS=\"\${CXXFLAGS/$lto/}\"" "LDFLAGS=\"\${LDFLAGS/$lto/}\"" 'USE="${USE} -lto"' > /etc/portage/env/no-lto.conf
+    # v4l2loopback's helpers are built with the kernel's clang, which rejects gcc's -flto=N
+    mkdir -p /etc/portage/package.env
+    grep -q '^media-video/v4l2loopback ' /etc/portage/package.env/no-lto 2>/dev/null ||
+      echo 'media-video/v4l2loopback no-lto.conf' >> /etc/portage/package.env/no-lto
   fi
   signing
   log "cpu.conf: -march=tremont${no:- (full)}${extra} | -j${jobs}${ULTRA:+ | ULTRA}"
@@ -136,11 +140,13 @@ ultra_bootstrap() {
 
 world() {
   ultra_bootstrap
-  log "emerge @world (reuses existing binaries, builds only what is new)"
-  emerge --usepkg --buildpkg -uDNq --with-bdeps=y --keep-going @world 2>&1 | tee -a "$LOG" | grep -E '^(>>> Emerging|!!!| \* ERROR)'
+  # "full": also packages that never changed since the stage3 (they have no binary yet)
+  local mode=-uDN; [[ $1 == full ]] && mode=-e
+  log "emerge @world $mode (reuses existing binaries, builds only what is missing)"
+  emerge --usepkg --buildpkg $mode -q --with-bdeps=y --keep-going @world 2>&1 | tee -a "$LOG" | grep -E '^(>>> Emerging|!!!| \* ERROR)'
   local rc=$?
   if [[ $ULTRA == 1 && $rc -ne 0 ]] && no_lto_retry; then
-    emerge --usepkg --buildpkg -uDNq --with-bdeps=y --keep-going @world 2>&1 | tee -a "$LOG" | grep -E '^(>>> Emerging|!!!| \* ERROR)'
+    emerge --usepkg --buildpkg $mode -q --with-bdeps=y --keep-going @world 2>&1 | tee -a "$LOG" | grep -E '^(>>> Emerging|!!!| \* ERROR)'
     rc=$?
   fi
   emerge --depclean -q 2>&1 | tail -2
@@ -174,6 +180,10 @@ kernel() {
   cp "$KOUT/System.map" "$st/boot/System.map-${KV}-gentoo-sasuke"
   log "kernel ${KV}: v4l2loopback"
   KERNEL_DIR=$src KBUILD_OUTPUT=$KOUT emerge -1q --usepkg=n media-video/v4l2loopback 2>&1 | tail -2
+  # ship the module inside the kernel archive: on the Chromebook the v4l2loopback package is
+  # not reinstalled when only the kernel changes
+  local vm=/lib/modules/${KV}-gentoo-sasuke/video/v4l2loopback.ko
+  if [[ -f $vm ]]; then install -Dm644 "$vm" "$st$vm"; else log "kernel ${KV}: v4l2loopback FAILED"; return 1; fi
   # pack only boot/ and lib/ (never the "." entry: it would change permissions of / on the Chromebook)
   tar -C "$st" --zstd -cf "$art/kernel-${KV}-sasuke.tar.zst" boot lib &&
     (cd "$art" && sha256sum "kernel-${KV}-sasuke.tar.zst" > "kernel-${KV}-sasuke.tar.zst.sha256") &&
@@ -186,7 +196,7 @@ case "$1" in
   daemon) cpu; log "builder ready"; exec sleep infinity ;;
   cpu)    cpu ;;
   sync)   sync ;;
-  world)  cpu; world ;;
+  world)  cpu; world "$2" ;;
   kernel) cpu; kernel "$2" ;;
   update) cpu; sync; world; kernel; log "UPDATE_DONE" ;;
   sign)   cpu; sign_all ;;

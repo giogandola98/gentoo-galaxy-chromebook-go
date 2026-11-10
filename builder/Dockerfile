@@ -9,7 +9,7 @@ FROM docker.io/gentoo/stage3:systemd
 # Project Portage configuration (same as gentoo/portage in the repo)
 COPY gentoo/portage/ /etc/portage/
 COPY gentoo/world /var/lib/portage/world
-COPY kernel/config-sasuke-6.18.60 /etc/sasuke/kernel.config
+COPY kernel/config-sasuke-6.18.62 /etc/sasuke/kernel.config
 COPY kernel/KERNEL_VERSION /etc/sasuke/KERNEL_VERSION
 COPY builder/builder.sh /usr/local/bin/builder
 COPY builder/repos.conf /etc/portage/repos.conf/sasuke.conf

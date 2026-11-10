@@ -116,11 +116,20 @@ sync() {
 # First ULTRA run on a fresh stage3: clang/lld for the kernel, and break the
 # docutils -> pillow -> harfbuzz -> glib -> docutils cycle (pillow without truetype once).
 ultra_bootstrap() {
-  [[ $ULTRA == 1 && ! -f /var/lib/sasuke-ultra-bootstrap ]] || return 0
-  log "ULTRA bootstrap: pillow -truetype, clang, lld"
-  USE="-truetype" emerge -1q --buildpkg=n dev-python/pillow 2>&1 | tail -3 | tee -a "$LOG"
-  emerge -q --usepkg --buildpkg --noreplace llvm-core/clang llvm-core/lld 2>&1 | tail -3 | tee -a "$LOG" &&
-    touch /var/lib/sasuke-ultra-bootstrap
+  [[ $ULTRA == 1 ]] || return 0
+  # clang/lld build the kernel: keep them in a set of their own, or depclean removes them
+  # (they are not in the Chromebook's world file)
+  mkdir -p /etc/portage/sets
+  printf '%s\n' llvm-core/clang llvm-core/lld > /etc/portage/sets/sasuke-ultra
+  grep -qx '@sasuke-ultra' /var/lib/portage/world_sets 2>/dev/null || echo '@sasuke-ultra' >> /var/lib/portage/world_sets
+  if [[ ! -f /var/lib/sasuke-ultra-bootstrap ]]; then
+    log "ULTRA bootstrap: pillow -truetype"
+    USE="-truetype" emerge -1q --buildpkg=n dev-python/pillow 2>&1 | tail -3 | tee -a "$LOG" &&
+      touch /var/lib/sasuke-ultra-bootstrap
+  fi
+  command -v clang >/dev/null && command -v ld.lld >/dev/null && return 0
+  log "ULTRA: installing clang, lld"
+  emerge -q --usepkg --buildpkg --noreplace @sasuke-ultra 2>&1 | tail -3 | tee -a "$LOG"
 }
 
 world() {
@@ -148,6 +157,7 @@ kernel() {
   cp /etc/sasuke/kernel.config "$KOUT/.config"
   local M="make -C $src O=$KOUT KCFLAGS=-march=tremont $(. /etc/portage/cpu.conf; echo "$MAKEOPTS")"
   if [[ $ULTRA == 1 ]]; then   # clang + full LTO kernel (our kernel is small, so full LTO fits in RAM)
+    ultra_bootstrap
     M="$M LLVM=1"
     $M olddefconfig >/dev/null
     "$src"/scripts/config --file "$KOUT/.config" -d LTO_NONE -d LTO_CLANG_THIN -e LTO_CLANG_FULL

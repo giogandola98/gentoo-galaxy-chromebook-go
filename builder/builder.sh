@@ -52,7 +52,10 @@ EOF
     echo 'EMERGE_DEFAULT_OPTS="${EMERGE_DEFAULT_OPTS} --jobs=1"' >> /etc/portage/late.conf
     printf '%s\n' "LDFLAGS=\"\${LDFLAGS} $lto\"" 'USE="${USE} lto pgo"' >> /etc/portage/cpu.conf
     mkdir -p /etc/portage/env
-    printf '%s\n' "CFLAGS=\"\${CFLAGS/$lto/}\"" "CXXFLAGS=\"\${CXXFLAGS/$lto/}\"" "LDFLAGS=\"\${LDFLAGS/$lto/}\"" 'USE="${USE} -lto"' > /etc/portage/env/no-lto.conf
+    # package.env files are not bash: no ${VAR/x/y}, so write the flags out in full
+    local base="-O2 -pipe -march=tremont -mtune=tremont${no}"
+    printf '%s\n' "CFLAGS=\"$base\"" "CXXFLAGS=\"$base\"" "FCFLAGS=\"$base\"" "FFLAGS=\"$base\"" \
+      'LDFLAGS="-Wl,-O1 -Wl,--as-needed -Wl,-z,pack-relative-relocs"' 'USE="${USE} -lto"' > /etc/portage/env/no-lto.conf
     # v4l2loopback's helpers are built with the kernel's clang, which rejects gcc's -flto=N
     mkdir -p /etc/portage/package.env
     grep -q '^media-video/v4l2loopback ' /etc/portage/package.env/no-lto 2>/dev/null ||

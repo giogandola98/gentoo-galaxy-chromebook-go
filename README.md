@@ -110,6 +110,20 @@ sasuke-update --build    # ask the builder to sync + rebuild first (SSH key, res
 
 Nothing is ever compiled on the Chromebook by accident: if the builder is unreachable the update stops.
 
+### Ultra packages (LTO + PGO, clang full-LTO kernel)
+
+The `builder-ultra` service builds the same system with global LTO and PGO; it is served under
+`/ultra`. First build: `builder world full`, then `builder kernel` and `builder sign`. To switch the
+Chromebook to it (and back), change the sync-uri and reinstall everything once:
+
+```sh
+sed -i 's|^sync-uri.*|sync-uri = http://<builder>:8780/ultra|' /etc/portage/binrepos.conf/sasuke.conf
+sasuke-update --reinstall      # every package from the new binhost, plus its kernel
+```
+
+`sasuke-update --build` then starts the ULTRA build. LTO needs ~3 GB of RAM per job: on a
+12 GB build server use `ULTRA_JOBS=4`.
+
 ## Daily use
 
 | Key / place | Action |

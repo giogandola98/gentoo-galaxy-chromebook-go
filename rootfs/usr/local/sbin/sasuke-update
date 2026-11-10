@@ -2,14 +2,17 @@
 # Update the Chromebook with packages built by the SASUKE builder (over Tailscale).
 #   sasuke-update           install whatever the builder already has ready
 #   sasuke-update --build   ask the builder to sync and rebuild first (may take hours)
+#   sasuke-update --reinstall  reinstall every package (after switching normal <-> ultra)
 # Never compiles locally: if the builder is unreachable it stops.
 set -o pipefail
 [[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
-BUILDER_HOST=$(sed -n 's|^sync-uri *= *http://\([^:/]*\).*|\1|p' /etc/portage/binrepos.conf/sasuke.conf)
+# the binhost URL, e.g. http://cachyos-home:8780 or http://cachyos-home:8780/ultra
+BINHOST=$(sed -n 's|^sync-uri *= *\([^ ]*\).*|\1|p' /etc/portage/binrepos.conf/sasuke.conf); BINHOST=${BINHOST%/}
+BUILDER_HOST=$(sed 's|^[a-z]*://\([^:/]*\).*|\1|' <<< "$BINHOST")
+VARIANT=""; [[ $BINHOST == */ultra ]] && VARIANT=ultra
 # BUILDER_USER = account on the build server allowed to start a build (see README)
 [[ -f /etc/sasuke/update.conf ]] && . /etc/sasuke/update.conf
 BUILDER_USER=${BUILDER_USER:-builder}
-BINHOST="http://${BUILDER_HOST}:8780"
 KV_RUNNING=$(uname -r)
 
 say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
@@ -21,14 +24,15 @@ curl -sfm 8 "$BINHOST/Packages" -o /dev/null || die "Builder unreachable: is the
 if [[ $1 == --build ]]; then
   say "Builder: sync + rebuild (this can take a long time)"
   # the key is restricted on the builder side to run only "builder update"
-  ssh -o BatchMode=yes -i /root/.ssh/sasuke-builder "${BUILDER_USER}@${BUILDER_HOST}" || die "Build on the builder failed"
+  ssh -o BatchMode=yes -i /root/.ssh/sasuke-builder "${BUILDER_USER}@${BUILDER_HOST}" $VARIANT || die "Build on the builder failed"
 fi
 
 say "Syncing package metadata"
 emaint sync -a >/dev/null 2>&1 || echo "(repository sync failed, using the local copy)"
 
 say "Installing updates"
-emerge -uDNq --getbinpkgonly --with-bdeps=n @world || die "emerge failed"
+MODE=-uDN; [[ $1 == --reinstall ]] && MODE=-e
+emerge $MODE -q --getbinpkgonly --with-bdeps=n @world || die "emerge failed"
 emerge --depclean -q
 # downloaded packages are always available again on the builder: keep the eMMC clean
 rm -rf /var/cache/binhost/*/* /var/cache/binpkgs/*

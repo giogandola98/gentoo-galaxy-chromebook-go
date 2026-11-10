@@ -127,9 +127,11 @@ ultra_bootstrap() {
     USE="-truetype" emerge -1q --buildpkg=n dev-python/pillow 2>&1 | tail -3 | tee -a "$LOG" &&
       touch /var/lib/sasuke-ultra-bootstrap
   fi
-  command -v clang >/dev/null && command -v ld.lld >/dev/null && return 0
-  log "ULTRA: installing clang, lld"
-  emerge -q --usepkg --buildpkg --noreplace @sasuke-ultra 2>&1 | tail -3 | tee -a "$LOG"
+  emerge -q --usepkg --buildpkg --noreplace @sasuke-ultra 2>&1 | grep -E '^(>>> Emerging|!!!)' | tee -a "$LOG"
+  # LLVM lives in /usr/lib/llvm/<slot>/bin; "docker exec" does not read /etc/profile
+  local llvm; llvm=$(ls -d /usr/lib/llvm/*/bin 2>/dev/null | sort -V | tail -1)
+  [[ -n $llvm && :$PATH: != *":$llvm:"* ]] && export PATH="$llvm:$PATH"
+  command -v clang >/dev/null && command -v ld.lld >/dev/null || { log "ULTRA: clang/lld not found"; return 1; }
 }
 
 world() {
@@ -157,7 +159,7 @@ kernel() {
   cp /etc/sasuke/kernel.config "$KOUT/.config"
   local M="make -C $src O=$KOUT KCFLAGS=-march=tremont $(. /etc/portage/cpu.conf; echo "$MAKEOPTS")"
   if [[ $ULTRA == 1 ]]; then   # clang + full LTO kernel (our kernel is small, so full LTO fits in RAM)
-    ultra_bootstrap
+    ultra_bootstrap || return 1
     M="$M LLVM=1"
     $M olddefconfig >/dev/null
     "$src"/scripts/config --file "$KOUT/.config" -d LTO_NONE -d LTO_CLANG_THIN -e LTO_CLANG_FULL

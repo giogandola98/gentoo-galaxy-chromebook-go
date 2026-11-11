@@ -60,6 +60,7 @@ tar -C $MNT -xpf $MNT/stage3.tar.xz --xattrs-include='*.*' --numeric-owner && rm
 say "Portage configuration + system overlay"
 cp -a "$REPO"/gentoo/portage/{package.*,env} $MNT/etc/portage/
 cp "$REPO"/gentoo/device/make.conf $MNT/etc/portage/make.conf
+touch $MNT/etc/portage/variant.conf   # filled by sasuke-update (ULTRA USE)
 mkdir -p $MNT/etc/portage/env $MNT/etc/portage/package.env
 cp "$REPO"/gentoo/device/env/* $MNT/etc/portage/env/
 cp "$REPO"/gentoo/device/package.env/* $MNT/etc/portage/package.env/

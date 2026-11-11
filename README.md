@@ -33,7 +33,7 @@ greetd/tuigreet login, zram swap, MGLRU.
 ```
 builder/        Docker build server (image + compose): builds all packages and the kernel, serves them
 gentoo/portage/ Portage configuration used by the builder (make.conf, USE flags, keywords, env)
-gentoo/device/  make.conf and binrepos.conf for the Chromebook itself
+gentoo/device/  make.conf, binrepos.conf and firmware trim for the Chromebook itself
 gentoo/world    the package set
 kernel/         kernel config (config-sasuke-*) and KERNEL_VERSION
 rootfs/         files copied as-is onto the Chromebook (desktop, keys, power, firewall, scripts)

@@ -60,6 +60,9 @@ tar -C $MNT -xpf $MNT/stage3.tar.xz --xattrs-include='*.*' --numeric-owner && rm
 say "Portage configuration + system overlay"
 cp -a "$REPO"/gentoo/portage/{package.*,env} $MNT/etc/portage/
 cp "$REPO"/gentoo/device/make.conf $MNT/etc/portage/make.conf
+mkdir -p $MNT/etc/portage/env $MNT/etc/portage/package.env
+cp "$REPO"/gentoo/device/env/* $MNT/etc/portage/env/
+cp "$REPO"/gentoo/device/package.env/* $MNT/etc/portage/package.env/
 rm -rf $MNT/etc/portage/binrepos.conf && mkdir -p $MNT/etc/portage/binrepos.conf
 sed "s|^sync-uri.*|sync-uri = $BINHOST|" "$REPO"/gentoo/device/binrepos.conf/sasuke.conf > $MNT/etc/portage/binrepos.conf/sasuke.conf
 cp "$REPO"/gentoo/device/binrepos.conf/gentoo.conf $MNT/etc/portage/binrepos.conf/

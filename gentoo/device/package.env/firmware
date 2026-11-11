@@ -1,0 +1,3 @@
+sys-kernel/linux-firmware firmware-trim.conf
+sys-firmware/sof-firmware firmware-trim.conf
+sys-firmware/intel-microcode firmware-trim.conf

@@ -14,3 +14,5 @@ fkeys-overlay >/dev/null 2>&1 &
 wl-paste --watch cliphist store >/dev/null 2>&1 &
 udiskie --tray --notify --automount >/dev/null 2>&1 &
 nightlight autostart
+# calendar reminders (GNOME Calendar / evolution-data-server)
+[ -x /usr/libexec/evolution-data-server/evolution-alarm-notify ] && /usr/libexec/evolution-data-server/evolution-alarm-notify >/dev/null 2>&1 &

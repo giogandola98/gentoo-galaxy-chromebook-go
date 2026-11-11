@@ -97,7 +97,7 @@ curl -sf $BINHOST/sasuke-kernel/kernel-\${KV}-sasuke.tar.zst | tar -C / --keep-d
 mkdir -p /var/lib/sasuke; curl -sf $BINHOST/sasuke-kernel/kernel-\${KV}-sasuke.tar.zst.sha256 | awk '{print \$1}' > /var/lib/sasuke/kernel.sha256
 depmod \${KV}-gentoo-sasuke
 dracut -f --kver \${KV}-gentoo-sasuke /boot/initramfs-\${KV}-gentoo-sasuke.img
-sed -i 's|^#\?GRUB_TIMEOUT=.*|GRUB_TIMEOUT=2|; s|^#\?GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 mem_sleep_default=deep panic=10 i915.enable_guc=2 nowatchdog"|' /etc/default/grub
+sed -i 's|^#\?GRUB_TIMEOUT=.*|GRUB_TIMEOUT=2|; s|^#\?GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 mem_sleep_default=deep panic=10 i915.enable_guc=2 nowatchdog zswap.enabled=0 transparent_hugepage=madvise"|' /etc/default/grub
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=gentoo
 grub-install --target=x86_64-efi --efi-directory=/efi --removable
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -111,7 +111,8 @@ echo "Set the password for $USERNAME:"; passwd $USERNAME
 passwd -l root
 echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/wheel; chmod 440 /etc/sudoers.d/wheel
 bash /root/postinstall.sh
-systemctl enable sasuke-firewall sasuke-charge
+systemctl enable sasuke-firewall fstrim.timer
+systemctl --global enable gnome-keyring-daemon.socket
 EOF
 chroot $MNT /bin/bash /root/inside.sh
 

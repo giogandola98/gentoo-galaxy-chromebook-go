@@ -55,6 +55,8 @@ media-video/v4l2loopback
 net-misc/openssh
 app-editors/vscodium
 app-office/obsidian
+gnome-extra/gnome-calendar
+gnome-base/gnome-keyring
 app-misc/brightnessctl
 sys-auth/rtkit
 sys-power/upower

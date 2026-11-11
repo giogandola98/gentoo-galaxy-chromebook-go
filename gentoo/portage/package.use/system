@@ -21,3 +21,6 @@ xfce-base/thunar -trash-panel-plugin
 gui-apps/waybar network tray wifi backlight mpris
 dev-libs/libdbusmenu gtk3
 gnome-extra/nm-applet appindicator
+# calendar (GNOME Calendar + iCloud CalDAV): no OAuth/WebKit, passwords in gnome-keyring
+gnome-extra/evolution-data-server -gnome-online-accounts -oauth-gtk3 -oauth-gtk4
+dev-libs/appstream -qt6

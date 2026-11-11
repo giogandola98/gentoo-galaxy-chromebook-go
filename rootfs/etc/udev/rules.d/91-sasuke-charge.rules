@@ -1,0 +1,3 @@
+# Battery charge limit: apply the saved mode (sasuke-charge) as soon as the ChromeOS EC
+# charge-control driver binds; before that the threshold files exist but are read-only.
+ACTION=="bind", SUBSYSTEM=="platform", DRIVER=="cros-charge-control", RUN+="/usr/local/sbin/sasuke-charge apply"

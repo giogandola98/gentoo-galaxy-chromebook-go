@@ -1,0 +1,9 @@
+# greetd login + gnome-keyring: the login keyring (where GNOME Calendar keeps the iCloud
+# app-specific password) is unlocked with the login password
+auth            include         login
+auth            optional        pam_gnome_keyring.so
+account         include         login
+password        include         login
+password        optional        pam_gnome_keyring.so use_authtok
+session         include         login
+session         optional        pam_gnome_keyring.so auto_start

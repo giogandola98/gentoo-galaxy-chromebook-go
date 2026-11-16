@@ -1,4 +1,4 @@
-sys-kernel/gentoo-sources
+sys-kernel/dracut
 sys-kernel/linux-firmware
 sys-firmware/sof-firmware
 sys-firmware/intel-microcode
@@ -69,3 +69,6 @@ x11-themes/papirus-icon-theme
 dev-vcs/git
 app-arch/unzip
 sys-apps/lsb-release
+app-pda/libimobiledevice
+app-pda/usbmuxd
+dev-util/github-cli

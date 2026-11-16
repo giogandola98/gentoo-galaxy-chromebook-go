@@ -58,6 +58,16 @@ docker compose exec builder builder status
 The `binhost` service (nginx) publishes the packages and the kernel on `BIND:8780`.
 Bind it to the Tailscale IP so it is reachable only from your tailnet.
 
+Docker must start at boot, and after Tailscale (otherwise nginx cannot bind the Tailscale IP);
+with only `docker.socket` enabled the containers stay down until someone runs a `docker` command:
+
+```sh
+sudo systemctl enable docker.service
+printf '[Unit]\nAfter=tailscaled.service\nWants=tailscaled.service\n' |
+  sudo tee /etc/systemd/system/docker.service.d/after-tailscale.conf   # mkdir -p the dir first
+sudo systemctl daemon-reload
+```
+
 Every package is **GPG-signed** by the builder (`builder cpu` creates the key on first start; the
 private key stays in `DATA/kernel/gnupg`, the public key is served as `sasuke-signing.asc`).
 The Chromebook accepts only packages signed by this key or by Gentoo. Packages built before

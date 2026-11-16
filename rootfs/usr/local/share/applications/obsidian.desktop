@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Obsidian
+Comment=Note in Markdown
+Exec=/usr/local/bin/obsidian %U
+Icon=obsidian
+Terminal=false
+Type=Application
+StartupWMClass=obsidian
+Categories=Office;
+MimeType=x-scheme-handler/obsidian;
+Actions=xwayland;
+
+[Desktop Action xwayland]
+Name=Avvia con XWayland
+Exec=env OBSIDIAN_X11=1 /usr/local/bin/obsidian %U

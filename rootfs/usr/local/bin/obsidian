@@ -1,0 +1,14 @@
+#!/bin/sh
+# Obsidian (Electron) tuned for SASUKE: native Wayland on labwc instead of XWayland,
+# rasterization and uploads on the Intel UHD GPU (Jasper Lake) to spare the Celeron.
+# OBSIDIAN_X11=1 obsidian   -> old XWayland path, if native Wayland ever misbehaves
+# (https://bugs.gentoo.org/915899).
+if [ -n "$OBSIDIAN_X11" ]; then
+  exec /opt/Obsidian/obsidian "$@"
+fi
+exec /opt/Obsidian/obsidian \
+  --ozone-platform=wayland \
+  --enable-wayland-ime \
+  --enable-gpu-rasterization \
+  --enable-zero-copy \
+  "$@"

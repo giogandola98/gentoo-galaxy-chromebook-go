@@ -9,3 +9,10 @@ fi
 if [[ ${CATEGORY}/${PN} == net-misc/icaclient && ${EBUILD_PHASE} == postinst ]]; then
   ROOT="${ROOT}" /usr/local/sbin/citrix-notelemetry
 fi
+
+# Packages with SASUKE_BINONLY=1 (env/heavy.conf): never compiled on sasuke.
+# EMERGE_FROM is "ebuild" when portage is about to build from source.
+if [[ -n ${SASUKE_BINONLY} && ${EMERGE_FROM} == ebuild && $(</etc/hostname) == sasuke ]] \
+   && [[ ${EBUILD_PHASE} == pretend || ${EBUILD_PHASE} == setup ]]; then
+  die "${CATEGORY}/${PN}: too heavy to build here. Turn on the builder and retry."
+fi

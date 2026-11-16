@@ -1,13 +1,34 @@
 #!/bin/sh
-# Night light (wlsunset): warmer screen from 19:30 to 07:00.
-#   nightlight toggle | on | off | status   ("status" prints JSON for waybar)
-on() { pgrep -x wlsunset >/dev/null; }
-start() { setsid wlsunset -S 07:00 -s 19:30 -d 1800 -t 4000 -T 6500 >/dev/null 2>&1 < /dev/null & }
+# Night light (wlsunset). Three modes, the click on waybar cycles them:
+#   auto   -> warm screen from 19:30 to 07:00 (schedule)
+#   always -> warm screen right now, at any hour
+#   off    -> no filter
+#   nightlight toggle | auto | always | off | autostart | status
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/nightlight"
+WARM=4000
+
+mode() { m=$(cat "$STATE" 2>/dev/null); case "$m" in auto|always|off) echo "$m" ;; on) echo auto ;; *) echo auto ;; esac; }
+stop() { pkill -x wlsunset; while pgrep -x wlsunset >/dev/null; do sleep 0.1; done; }
+run() { setsid wlsunset "$@" >/dev/null 2>&1 < /dev/null & }
+apply() {
+  stop
+  case "$1" in
+    auto)   run -S 07:00 -s 19:30 -d 1800 -t $WARM -T 6500 ;;
+    always) run -t $WARM -T $((WARM + 1)) ;;   # high ~= low: constantly warm
+  esac
+}
+set_mode() { mkdir -p "${STATE%/*}"; echo "$1" > "$STATE"; apply "$1"; pkill -RTMIN+9 -x waybar; }
+
 case "$1" in
-  on) on || start; echo on > "${XDG_STATE_HOME:-$HOME/.local/state}/nightlight" ;;
-  off) pkill -x wlsunset; echo off > "${XDG_STATE_HOME:-$HOME/.local/state}/nightlight" ;;
-  toggle) if on; then "$0" off; else "$0" on; fi; pkill -RTMIN+9 -x waybar ;;
-  autostart) [ "$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/nightlight" 2>/dev/null)" = off ] || start ;;
-  status) if on; then echo '{"text":"🌙","class":"on","tooltip":"Luce notturna attiva (19:30-07:00)\nClic: disattiva"}';
-          else echo '{"text":"☀","class":"off","tooltip":"Luce notturna spenta\nClic: attiva"}'; fi ;;
+  auto|always|off) set_mode "$1" ;;
+  on) set_mode always ;;
+  toggle) case "$(mode)" in auto) set_mode always ;; always) set_mode off ;; *) set_mode auto ;; esac ;;
+  autostart) apply "$(mode)" ;;
+  status)
+    if ! pgrep -x wlsunset >/dev/null && [ "$(mode)" != off ]; then m=off; else m=$(mode); fi
+    case "$m" in
+      auto)   echo '{"text":"🌗","class":"auto","tooltip":"Luce notturna automatica (19:30-07:00)\nClic: sempre attiva"}' ;;
+      always) echo '{"text":"🌙","class":"on","tooltip":"Luce notturna sempre attiva\nClic: spegni"}' ;;
+      off)    echo '{"text":"☀","class":"off","tooltip":"Luce notturna spenta\nClic: automatica"}' ;;
+    esac ;;
 esac

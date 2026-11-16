@@ -5,8 +5,10 @@ set -x
 sed -i '/EnableNetworkConfiguration/d; /NameResolvingService/d' /etc/iwd/main.conf 2>/dev/null
 systemctl disable iwd.service 2>/dev/null
 systemctl enable NetworkManager.service bluetooth.service greetd.service tailscaled.service \
-    systemd-resolved.service systemd-timesyncd.service sshd.service keyd.service thermald.service 2>&1
+    systemd-resolved.service systemd-timesyncd.service sshd.service keyd.service 2>&1
 systemctl enable tlp.service 2>/dev/null
+# nothing waits for the network to be online
+systemctl disable NetworkManager-wait-online.service 2>/dev/null
 systemctl mask systemd-rfkill.service systemd-rfkill.socket 2>/dev/null
 systemctl set-default graphical.target
 # greetd user

@@ -1,0 +1,6 @@
+# Login screen only (tuigreet, user greeter): no gnome-keyring, it would look for
+# a keyring in /home/greeter. The user session still goes through pam.d/greetd.
+auth            include         login
+account         include         login
+password        include         login
+session         include         login

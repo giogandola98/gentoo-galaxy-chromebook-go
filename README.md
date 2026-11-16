@@ -108,7 +108,13 @@ sasuke-update            # install whatever the builder already built
 sasuke-update --build    # ask the builder to sync + rebuild first (SSH key, restricted command)
 ```
 
-Nothing is ever compiled on the Chromebook by accident: if the builder is unreachable the update stops.
+`sasuke-update` only installs builder binaries: if the builder is unreachable the update stops.
+
+For day-to-day updates there is also `aggiorna` (`emerge -auDN @world`): builder binaries first,
+and whatever the builder does not have is compiled locally with `-march=tremont`. Gentoo's generic
+x86-64 binhost is off (`/etc/portage/binrepos-gentoo.conf.disabled`). The heavy packages in
+`package.env/heavy` (Firefox, Rust, LLVM, Clang, QtWebEngine) are never built on the Chromebook:
+`/etc/portage/bashrc` refuses them, and `aggiorna` leaves them out while the builder is offline.
 
 ### Ultra packages (LTO + PGO, clang full-LTO kernel)
 
@@ -138,7 +144,7 @@ sasuke-update --reinstall      # every package from the new binhost, plus its ke
 | ⏻ in the bar | power off, reboot, suspend, logout, battery charge mode |
 | TS in the bar | Tailscale menu |
 | ⚡/⚖/🍃 in the bar | power profile |
-| 🌙/☀ in the bar | night light |
+| 🌗/🌙/☀ in the bar | night light: automatic (19:30–07:00) → always on → off |
 
 ## Notes
 

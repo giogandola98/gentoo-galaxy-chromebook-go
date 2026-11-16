@@ -1,0 +1,13 @@
+#!/bin/bash
+# aggiorna [emerge options]  ->  emerge -auDN @world
+# Builder binaries first, local build otherwise. If the builder does not answer, the
+# packages in package.env/heavy (firefox, rust, llvm...) are excluded: they are never
+# built here and get updated once the builder is back.
+HEAVY=$(awk '!/^#/ && NF {print $1}' /etc/portage/package.env/heavy | grep -v '^sys-devel/gcc$' | tr '\n' ' ')
+BINHOST=$(sed -n 's|^sync-uri *= *\([^ ]*\).*|\1|p' /etc/portage/binrepos.conf/sasuke.conf)
+extra=()
+if ! curl -s -m 5 -o /dev/null "$BINHOST/Packages"; then
+  echo ">>> builder unreachable: skipping $HEAVY"
+  extra=(--exclude "$HEAVY")
+fi
+exec emerge -auDN "${extra[@]}" "$@" @world

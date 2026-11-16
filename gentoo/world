@@ -5,7 +5,6 @@ sys-firmware/intel-microcode
 sys-kernel/installkernel
 sys-boot/grub
 sys-apps/zram-generator
-sys-power/thermald
 sys-power/tlp
 app-admin/sudo
 app-editors/nano
@@ -65,6 +64,7 @@ gui-apps/wlsunset
 gui-apps/wlopm
 app-misc/cliphist
 sys-fs/udiskie
+sys-fs/dosfstools
 x11-themes/papirus-icon-theme
 dev-vcs/git
 app-arch/unzip

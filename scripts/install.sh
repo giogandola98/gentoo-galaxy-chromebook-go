@@ -66,7 +66,7 @@ cp "$REPO"/gentoo/device/env/* $MNT/etc/portage/env/
 cp "$REPO"/gentoo/device/package.env/* $MNT/etc/portage/package.env/
 rm -rf $MNT/etc/portage/binrepos.conf && mkdir -p $MNT/etc/portage/binrepos.conf
 sed "s|^sync-uri.*|sync-uri = $BINHOST|" "$REPO"/gentoo/device/binrepos.conf/sasuke.conf > $MNT/etc/portage/binrepos.conf/sasuke.conf
-cp "$REPO"/gentoo/device/binrepos.conf/gentoo.conf $MNT/etc/portage/binrepos.conf/
+cp "$REPO"/gentoo/device/binrepos-disabled/gentoo.conf $MNT/etc/portage/binrepos-gentoo.conf.disabled   # generic x86-64: off
 cp "$REPO"/gentoo/world $MNT/root/world.txt
 cp -a "$REPO"/builder/repos.conf $MNT/etc/portage/repos.conf/sasuke.conf 2>/dev/null || { mkdir -p $MNT/etc/portage/repos.conf; cp "$REPO"/builder/repos.conf $MNT/etc/portage/repos.conf/sasuke.conf; }
 (cd "$REPO"/rootfs && tar --exclude='._*' -cf - .) | tar -C $MNT --no-same-owner -xf -

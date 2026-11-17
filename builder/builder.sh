@@ -4,6 +4,7 @@
 #   builder update   sync repos and rebuild whatever changed (@world + kernel if needed)
 #   builder world    @world only, no sync ("full": every package, e.g. first ULTRA build)
 #   builder kernel   build the kernel version in /etc/sasuke/KERNEL_VERSION ("force" to rebuild)
+#   builder citrix   fetch the Citrix Workspace tarball the ebuild wants (also done by update)
 #   builder cpu      regenerate /etc/portage/cpu.conf for this machine's CPU
 #   builder sign     sign every package not signed yet (after enabling signing)
 #   builder status   tail of the log
@@ -127,6 +128,34 @@ sync() {
   emaint sync -a 2>&1 | tail -5 | tee -a "$LOG"
 }
 
+# Citrix Workspace is fetch-restricted: Portage never downloads the tarball itself.
+# Citrix's RSS feed lists the download pages (latest + legacy versions); each page carries
+# a short-lived signed link per tarball. Find the exact file the visible ebuild wants and
+# put it in DISTDIR; Portage then checks it against the Gentoo Manifest as usual.
+CITRIX_RSS=https://www.citrix.com/content/citrix/en_us/downloads/workspace-app.rss
+citrix() {
+  local cpv pv eb f dist page url tmp
+  cpv=$(portageq best_visible / net-misc/icaclient) || return 0
+  pv=${cpv#net-misc/icaclient-}
+  eb=/var/db/repos/gentoo/net-misc/icaclient/icaclient-${pv}.ebuild
+  f=$(grep -oE 'linuxx64[^ )]*\$\{PV\}[^ )]*' "$eb" | head -1); f=${f//'${PV}'/$pv}
+  dist=$(portageq distdir)
+  [[ -n $f ]] || { log "citrix: tarball name not found in $eb"; return 0; }
+  [[ -f $dist/$f ]] && return 0
+  log "citrix: looking for $f"
+  for page in $(curl -sfL -m30 "$CITRIX_RSS" | grep -oE 'https?://www\.citrix\.com/downloads/workspace-app/(linux|legacy-workspace-app-for-linux)/[^<"]+\.html' | sort -u); do
+    url=$(curl -sfL -m30 -A 'Mozilla/5.0' "${page/http:/https:}" | grep -oE "//downloads\.citrix\.com/[0-9]+/${f//./\\.}\?[^\"]+" | head -1)
+    [[ -n $url ]] || continue
+    tmp=$(mktemp "$dist/.citrix.XXXXXX")
+    if curl -sfL -m900 -o "$tmp" "https:${url//&amp;/&}"; then
+      chmod 644 "$tmp"; mv "$tmp" "$dist/$f"; chown portage:portage "$dist/$f" 2>/dev/null
+      log "citrix: $f downloaded from ${page##*/}"; return 0
+    fi
+    rm -f "$tmp"
+  done
+  log "citrix: $f not found in the RSS pages: download it by hand into $dist"
+}
+
 # First ULTRA run on a fresh stage3: clang/lld for the kernel, and break the
 # docutils -> pillow -> harfbuzz -> glib -> docutils cycle (pillow without truetype once).
 ultra_bootstrap() {
@@ -206,11 +235,12 @@ case "$1" in
   daemon) cpu; log "builder ready"; exec sleep infinity ;;
   cpu)    cpu ;;
   sync)   sync ;;
+  citrix) citrix ;;
   world)  cpu; world "$2" ;;
   kernel) cpu; kernel "$2" ;;
-  update) cpu; sync; world; kernel; log "UPDATE_DONE" ;;
+  update) cpu; sync; citrix; world; kernel; log "UPDATE_DONE" ;;
   sign)   cpu; sign_all ;;
   status) tail -n "${2:-20}" "$LOG" ;;
   shell)  exec bash ;;
-  *) sed -n '2,9p' "$0" ;;
+  *) sed -n '2,10p' "$0" ;;
 esac

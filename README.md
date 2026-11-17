@@ -158,8 +158,12 @@ sasuke-update --reinstall      # every package from the new binhost, plus its ke
 
 ## Notes
 
-- **Citrix**: install requires the `linuxx64-*.tar.gz` from citrix.com in the builder's distfiles
-  (licence: not redistributable). Telemetry (CEIP, Google Analytics, LaunchDarkly) is disabled by
+- **Citrix**: the ebuild is fetch-restricted (licence: not redistributable). `builder update`
+  (or `builder citrix`) finds the exact `linuxx64-*.tar.gz` the ebuild wants through Citrix's
+  [download RSS feed](https://www.citrix.com/content/citrix/en_us/downloads/workspace-app.rss)
+  (latest and legacy pages) and puts it in the distfiles; Portage checks it against the Manifest.
+  If Citrix drops that version from the feed, download it by hand into the builder's distfiles.
+  Telemetry (CEIP, Google Analytics, LaunchDarkly) is disabled by
   `citrix-notelemetry`. Its OpenGL renderer does not start under labwc/XWayland, so the software
   renderer is used.
 - **Firefox**: telemetry, studies, Pocket, sponsored content and AI features are disabled through

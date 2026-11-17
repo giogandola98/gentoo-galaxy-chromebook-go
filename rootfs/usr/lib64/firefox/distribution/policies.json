@@ -7,7 +7,7 @@
     "DisableDefaultBrowserAgent": true,
     "DontCheckDefaultBrowser": true,
     "DisableSetDesktopBackground": true,
-    "CaptivePortal": false,
+    "CaptivePortal": true,
     "NetworkPrediction": false,
     "FirefoxHome": {
       "Search": true,
@@ -161,7 +161,7 @@
         "Status": "locked"
       },
       "network.connectivity-service.enabled": {
-        "Value": false,
+        "Value": true,
         "Status": "default"
       },
       "media.ffmpeg.vaapi.enabled": {

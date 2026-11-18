@@ -13,6 +13,7 @@ COPY kernel/config-sasuke-6.18.62 /etc/sasuke/kernel.config
 COPY kernel/KERNEL_VERSION /etc/sasuke/KERNEL_VERSION
 COPY builder/builder.sh /usr/local/bin/builder
 COPY builder/repos.conf /etc/portage/repos.conf/sasuke.conf
+COPY overlay/ /var/db/sasuke-overlay/
 
 RUN rm -f /etc/portage/repos.conf/gentoo.conf.default 2>/dev/null; \
     ln -sfn ../../var/db/repos/gentoo/profiles/default/linux/amd64/23.0/desktop/systemd /etc/portage/make.profile; \

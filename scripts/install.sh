@@ -69,6 +69,7 @@ sed "s|^sync-uri.*|sync-uri = $BINHOST|" "$REPO"/gentoo/device/binrepos.conf/sas
 cp "$REPO"/gentoo/device/binrepos-disabled/gentoo.conf $MNT/etc/portage/binrepos-gentoo.conf.disabled   # generic x86-64: off
 cp "$REPO"/gentoo/world $MNT/root/world.txt
 cp -a "$REPO"/builder/repos.conf $MNT/etc/portage/repos.conf/sasuke.conf 2>/dev/null || { mkdir -p $MNT/etc/portage/repos.conf; cp "$REPO"/builder/repos.conf $MNT/etc/portage/repos.conf/sasuke.conf; }
+mkdir -p $MNT/var/db/sasuke-overlay && cp -a "$REPO"/overlay/. $MNT/var/db/sasuke-overlay/   # project ebuilds
 (cd "$REPO"/rootfs && tar --exclude='._*' -cf - .) | tar -C $MNT --no-same-owner -xf -
 chmod 440 $MNT/etc/sudoers.d/* 2>/dev/null || true
 cp "$REPO"/build/postinstall.sh $MNT/root/postinstall.sh

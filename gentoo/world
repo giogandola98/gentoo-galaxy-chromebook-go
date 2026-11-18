@@ -14,6 +14,8 @@ net-wireless/iwd
 gnome-extra/nm-applet
 net-wireless/bluez
 net-wireless/blueman
+net-wireless/librepods::sasuke
+dev-qt/qtwayland
 media-video/pipewire
 media-video/wireplumber
 media-sound/pavucontrol

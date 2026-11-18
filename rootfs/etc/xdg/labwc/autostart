@@ -4,6 +4,7 @@ waybar >/dev/null 2>&1 &
 mako -c /etc/xdg/mako/config >/dev/null 2>&1 &
 nm-applet --indicator >/dev/null 2>&1 &
 blueman-applet >/dev/null 2>&1 &
+librepods --hide >/dev/null 2>&1 &   # AirPods: battery, noise control, ear detection (tray)
 /usr/libexec/polkit-gnome-authentication-agent-1 >/dev/null 2>&1 &
 kanshi >/dev/null 2>&1 &
 swayidle -w timeout 300 'brightnessctl -s set 10%' resume 'brightnessctl -r' \

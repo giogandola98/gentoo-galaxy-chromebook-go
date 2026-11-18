@@ -35,6 +35,7 @@ builder/        Docker build server (image + compose): builds all packages and t
 gentoo/portage/ Portage configuration used by the builder (make.conf, USE flags, keywords, env)
 gentoo/device/  make.conf, binrepos.conf and firmware trim for the Chromebook itself
 gentoo/world    the package set
+overlay/        ebuilds not in Gentoo/GURU (repo "sasuke", in /var/db/sasuke-overlay on builder and Chromebook)
 kernel/         kernel config (config-sasuke-*) and KERNEL_VERSION
 rootfs/         files copied as-is onto the Chromebook (desktop, keys, power, firewall, scripts)
 scripts/        install.sh (from a live USB)
@@ -166,6 +167,13 @@ sasuke-update --reinstall      # every package from the new binhost, plus its ke
   Telemetry (CEIP, Google Analytics, LaunchDarkly) is disabled by
   `citrix-notelemetry`. Its OpenGL renderer does not start under labwc/XWayland, so the software
   renderer is used.
+- **AirPods**: audio uses AAC (A2DP) and switches to HFP by itself when an app opens the
+  microphone. [LibrePods](https://github.com/kavishdevar/librepods) (`net-wireless/librepods`
+  from `overlay/`, Qt client, patched to keep AAC instead of SBC-XQ) starts hidden in the tray:
+  per-bud and case battery, noise control (off/transparency/adaptive/ANC), ear detection
+  (pause/resume, audio off with both buds out), conversational awareness. From a shell:
+  `librepods-ctl noise:anc|transparency|adaptive|off`. `51-bluez-avrcp.conf` (WirePlumber dummy
+  AVRCP player) makes the stem controls work; do not run `mpris-proxy` as well.
 - **Firefox**: telemetry, studies, Pocket, sponsored content and AI features are disabled through
   `policies.json`; hardware video decoding (VA-API) is enabled.
 

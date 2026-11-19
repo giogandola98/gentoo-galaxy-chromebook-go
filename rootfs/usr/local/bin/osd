@@ -12,9 +12,16 @@ case "$1" in
   vol-*|mute)
     v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
     p=$(echo "$v" | awk '{printf "%d", $2*100+0.5}')
-    case "$v" in *MUTED*) t="Volume: muto" ;; *) t="Volume: $p%" ;; esac ;;
+    case "$v" in *MUTED*) t="Volume: muto" ;; *) t="Volume: $p%" ;; esac
+    # current output under the bar ("AirPods Pro", "Altoparlanti", "HDMI 1")
+    b=$(wpctl inspect @DEFAULT_AUDIO_SINK@ | sed -n 's/^[ *]*node\.description = "\(.*\)"$/\1/p' | head -1)
+    case "$b" in
+      *" Speaker") b="Altoparlanti" ;;
+      *" Line Out") b="Jack cuffie" ;;
+      *"HDMI / DisplayPort "[0-9]*) b="HDMI ${b#*DisplayPort }"; b=${b%% Output*} ;;
+    esac ;;
   light-*)
     p=$(brightnessctl -m | cut -d, -f4 | tr -d %)
     t="Luminosità: $p%" ;;
 esac
-notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:osd -h int:value:"$p" "$t"
+notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:osd -h int:value:"$p" "$t" "${b:-}"

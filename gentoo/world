@@ -13,8 +13,7 @@ net-misc/networkmanager
 net-wireless/iwd
 gnome-extra/nm-applet
 net-wireless/bluez
-net-wireless/blueman
-net-wireless/librepods::sasuke
+net-wireless/podbar::sasuke
 dev-qt/qtwayland
 media-video/pipewire
 media-video/wireplumber

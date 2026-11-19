@@ -2,6 +2,6 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<upstream>
-		<remote-id type="github">kavishdevar/librepods</remote-id>
+		<remote-id type="github">giogandola98/podbar</remote-id>
 	</upstream>
 </pkgmetadata>

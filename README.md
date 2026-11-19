@@ -12,7 +12,7 @@ The user interface is in Italian (keyboard `it`, locale `it_IT`); commands and s
 |---|---|
 | Boot | MrChromebox UEFI → GRUB → custom 6.18 LTS kernel (`-march=tremont`, ~15 MB of modules), ~7 s to login |
 | Wi-Fi | Intel AX201 (iwlwifi), NetworkManager with iwd backend, tray applet |
-| Bluetooth | btusb + BlueZ + Blueman; on/off state is remembered |
+| Bluetooth | btusb + BlueZ + [podbar](https://github.com/giogandola98/podbar) (Rust tray, `net-wireless/podbar` from `overlay/`: left click opens the menu with power, devices, pairing and AirPods); on/off state is remembered |
 | Audio | SOF `sof-da7219max98360a` (speakers, headset, internal mic) via ChromeOS UCM profiles |
 | Webcam / mic | in Firefox (Teams, Webex), PipeWire |
 | Sleep | S3 deep sleep on lid close, ~1 s resume, Wi-Fi reconnects |
@@ -168,12 +168,12 @@ sasuke-update --reinstall      # every package from the new binhost, plus its ke
   `citrix-notelemetry`. Its OpenGL renderer does not start under labwc/XWayland, so the software
   renderer is used.
 - **AirPods**: audio uses AAC (A2DP) and switches to HFP by itself when an app opens the
-  microphone. [LibrePods](https://github.com/kavishdevar/librepods) (`net-wireless/librepods`
-  from `overlay/`, Qt client, patched to keep AAC instead of SBC-XQ) starts hidden in the tray:
-  per-bud and case battery, noise control (off/transparency/adaptive/ANC), ear detection
-  (pause/resume, audio off with both buds out), conversational awareness. From a shell:
-  `librepods-ctl noise:anc|transparency|adaptive|off`. `51-bluez-avrcp.conf` (WirePlumber dummy
-  AVRCP player) makes the stem controls work; do not run `mpris-proxy` as well.
+  microphone. The AirPods controls live in the Bluetooth tray menu (podbar, see above), only
+  while they are connected: per-bud and case battery, noise control
+  (off/transparency/adaptive/ANC), conversational awareness, ear detection (pause/resume, audio
+  off with both buds out). From a shell: `podbar status`, `podbar noise anc|transparency|adaptive|off`.
+  `51-bluez-avrcp.conf` (WirePlumber dummy AVRCP player) makes the stem controls work; do not
+  run `mpris-proxy` as well.
 - **Firefox**: telemetry, studies, Pocket, sponsored content and AI features are disabled through
   `policies.json`; hardware video decoding (VA-API) is enabled.
 

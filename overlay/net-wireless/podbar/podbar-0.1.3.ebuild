@@ -34,7 +34,6 @@ CRATES="
 	hex@0.4.3
 	indexmap@2.14.2
 	js-sys@0.3.107
-	ksni@0.3.7
 	libc@0.2.191
 	linux-raw-sys@0.12.1
 	memchr@2.8.3
@@ -100,7 +99,7 @@ SRC_URI="
 
 LICENSE="GPL-3+"
 # Dependent crate licenses
-LICENSE+=" Apache-2.0 MIT Unicode-3.0"
+LICENSE+=" Apache-2.0 MIT Unicode-3.0 Unlicense"
 SLOT="0"
 KEYWORDS="amd64"
 
